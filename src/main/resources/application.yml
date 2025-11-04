@@ -1,10 +1,10 @@
 spring:
   application:
-    name: microservice-template
+    name: notifications-service
   
   # Configuração do DataSource (PostgreSQL)
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/distrischool_template}
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/distrischool_notifications}
     username: ${SPRING_DATASOURCE_USERNAME:distrischool}
     password: ${SPRING_DATASOURCE_PASSWORD:distrischool123}
     driver-class-name: ${SPRING_DATASOURCE_DRIVER_CLASS_NAME:org.postgresql.Driver}
@@ -57,16 +57,25 @@ spring:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: ${spring.application.name}-group
-      auto-offset-reset: earliest
+      auto-offset-reset: latest  # Use 'latest' to skip old compressed messages, 'earliest' to process from start
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
         spring.json.trusted.packages: '*'
+        # Deserializar para Map para aceitar diferentes tipos de eventos
+        spring.json.type.mapping: eventMap:java.util.Map
+        spring.json.value.default.type: java.util.Map
+        # Desabilitar uso de informações de tipo (@class) para aceitar qualquer formato
+        spring.json.use.type.headers: false
+        # Nota: compression.type é uma propriedade do producer, não do consumer
+        # O consumer automaticamente detecta e descompacta baseado no formato da mensagem
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
       retries: 3
+      # Desabilitar compressão no producer também
+      compression.type: none
     
   # Configuração do Jackson
   jackson:
@@ -147,7 +156,22 @@ microservice:
   version: 1.0.0
   kafka:
     topics:
-      # Defina seus tópicos aqui conforme os requisitos do DistriSchool
-      # Exemplos: student.created, teacher.assigned, schedule.updated, etc.
-      example-event: distrischool.example.event
-      example-command: distrischool.example.command
+      - distrischool.auth.user.created
+      - teacher-events
+      - distrischool.events
+    # Topics for notifications:
+    # - distrischool.auth.user.created (user.created, user.disabled events)
+    # - teacher-events (teacher.created events)
+    # - distrischool.events (generic fallback)
+
+# Auth0 Configuration for JWT authentication
+auth0:
+  domain: ${AUTH0_DOMAIN:dev-lthr3fyfn4x47q1g.us.auth0.com}
+  audience: ${AUTH0_AUDIENCE:https://api.distrischool.com}
+  client-id: ${AUTH0_CLIENT_ID:}
+  client-secret: ${AUTH0_CLIENT_SECRET:}
+
+# WebSocket Configuration
+websocket:
+  # Comma-separated list of allowed origins (use * for all in development)
+  allowed-origins: ${WEBSOCKET_ALLOWED_ORIGINS:*}

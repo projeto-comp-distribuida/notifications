@@ -26,8 +26,10 @@ WORKDIR /app
 COPY --from=deps /root/.m2/repository /root/.m2/repository
 COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
-# Instala inotify-tools para monitorar mudanças nos arquivos
-RUN apk add inotify-tools
+# Instala dependências necessárias
+# inotify-tools para monitorar mudanças nos arquivos
+# gcompat e libc6-compat para compatibilidade com bibliotecas glibc (necessário para Snappy)
+RUN apk add --no-cache inotify-tools gcompat libc6-compat
 RUN chmod +x /docker-entrypoint.sh
 
 # Configurações para hot reload

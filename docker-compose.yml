@@ -23,7 +23,7 @@ services:
       POSTGRES_PASSWORD: distrischool123
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     ports:
-      - "5432:5432"
+      - "5442:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init:/docker-entrypoint-initdb.d
@@ -103,6 +103,54 @@ services:
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     networks:
       - distrischool-network
+
+  # Auth Service - From ACR
+  auth-service:
+    image: distrischooldevacr.azurecr.io/microservice-auth:latest
+    container_name: microservice-auth-dev-2
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    ports:
+      - "8082:8080"
+    environment:
+      SERVER_PORT: 8080
+      KAFKA_BOOTSTRAP_SERVERS: kafka:29092
+      SPRING_PROFILES_ACTIVE: dev
+      # Configurações do PostgreSQL
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/distrischool_auth
+      SPRING_DATASOURCE_USERNAME: distrischool
+      SPRING_DATASOURCE_PASSWORD: distrischool123
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
+      # Configurações do Redis
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PASSWORD: ""
+      # Configurações do Flyway
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      # Configurações do Auth0
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN:-dev-lthr3fyfn4x47q1g.us.auth0.com}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-https://api.distrischool.com}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:-a54bNT1rqBrjqBYEtA9tPfcl87Nd5rvF}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET:-sqisN5KLFv3uDrVhtwhkhRgvodtXXbxusKffuTXjI8E_e9NV9zqEIv6MCRS9WUrs}
+      AUTH0_ENABLED: ${AUTH0_ENABLED:-true}
+      AUTH0_CONNECTION: ${AUTH0_CONNECTION:-Username-Password-Authentication}
+    env_file:
+      - .env
+    networks:
+      - distrischool-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
 
   # Microserviço Template - Ambiente de Desenvolvimento com Hot Reloading
   microservice-template-dev:
