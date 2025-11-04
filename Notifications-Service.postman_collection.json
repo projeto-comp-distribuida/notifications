@@ -1,0 +1,360 @@
+{
+	"info": {
+		"_postman_id": "notifications-service-1234-5678-90ab-cdef",
+		"name": "DistriSchool Notifications Service",
+		"description": "Complete API collection for the DistriSchool Notifications Service\n\nThis collection includes:\n- REST API endpoints for notifications\n- WebSocket connection for real-time notifications\n- Health check endpoints\n\n**Setup Instructions:**\n1. Import the environment file: Notifications-Service-Environment.postman_environment.json\n2. Set the `gateway_url` variable (default: http://localhost:8080)\n3. Set the `notifications_service_url` variable (default: http://localhost:8080)\n4. For authenticated endpoints, ensure you have a valid JWT token\n\n**WebSocket Support:**\n- Use the WebSocket request to connect for real-time notifications\n- Messages are sent as JSON\n- The connection stays open to receive push notifications",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "🔔 Notifications",
+			"item": [
+				{
+					"name": "Get All Notifications",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/v1/notifications",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications"
+							]
+						},
+						"description": "Get all notifications from the system.\n\n**Response Format:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Found X notifications\",\n  \"data\": [\n    {\n      \"id\": \"1\",\n      \"type\": \"user.created\",\n      \"title\": \"Novo Usuário Criado\",\n      \"message\": \"Usuário João criado com sucesso\",\n      \"timestamp\": \"2024-01-01T12:00:00\",\n      \"read\": false,\n      \"data\": {\n        \"userId\": 123,\n        \"userEmail\": \"joao@example.com\"\n      }\n    }\n  ]\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Mark Notification as Read",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/v1/notifications/{{notification_id}}/read",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"{{notification_id}}",
+								"read"
+							]
+						},
+						"description": "Mark a specific notification as read.\n\n**Path Parameters:**\n- `notification_id`: The ID of the notification to mark as read\n\n**Response Format:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Notification marked as read\",\n  \"data\": null\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Unread Notifications Only",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{gateway_url}}/api/v1/notifications?read=false",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications"
+							],
+							"query": [
+								{
+									"key": "read",
+									"value": "false",
+									"description": "Filter for unread notifications only"
+								}
+							]
+						},
+						"description": "Get only unread notifications. Note: This endpoint currently returns all notifications, but you can filter by the `read` field in the response."
+					},
+					"response": []
+				}
+			],
+			"description": "REST API endpoints for managing notifications"
+		},
+		{
+			"name": "🔌 WebSocket",
+			"item": [
+				{
+					"name": "Connect to Notifications WebSocket",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_ws_url}}/ws/notifications/connect",
+							"protocol": "ws",
+							"host": [
+								"{{gateway_ws_url}}"
+							],
+							"path": [
+								"ws",
+								"notifications",
+								"connect"
+							]
+						},
+						"description": "Connect to the notifications WebSocket for real-time notifications.\n\n**WebSocket Protocol:**\n- URL: `ws://localhost:8080/ws/notifications/connect`\n- Messages are sent/received as JSON\n- Connection stays open to receive push notifications\n\n**Message Format:**\n```json\n{\n  \"type\": \"notification\",\n  \"data\": {\n    \"id\": \"1\",\n    \"type\": \"user.created\",\n    \"title\": \"Novo Usuário Criado\",\n    \"message\": \"Usuário João criado com sucesso\",\n    \"timestamp\": \"2024-01-01T12:00:00\",\n    \"read\": false\n  }\n}\n```\n\n**Note:** In Postman, WebSocket connections are managed through the WebSocket request type. Make sure to use the WebSocket protocol (ws:// or wss://) in the URL."
+					},
+					"response": []
+				},
+				{
+					"name": "WebSocket - Direct Service Connection",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{notifications_service_ws_url}}/ws/notifications",
+							"protocol": "ws",
+							"host": [
+								"{{notifications_service_ws_url}}"
+							],
+							"path": [
+								"ws",
+								"notifications"
+							]
+						},
+						"description": "Connect directly to the notifications service WebSocket (bypassing the gateway).\n\n**URL:** `ws://localhost:8080/ws/notifications`\n\n**Usage:**\n1. Click \"Connect\" to establish the WebSocket connection\n2. You'll receive real-time notifications as they are created\n3. Send messages to subscribe/unsubscribe to specific event types"
+					},
+					"response": []
+				}
+			],
+			"description": "WebSocket endpoints for real-time notifications\n\n**Connection Methods:**\n1. Via API Gateway: Recommended for production\n2. Direct to Service: For development/testing\n\n**WebSocket Features:**\n- Real-time push notifications\n- Automatic reconnection on disconnect\n- JSON message format\n- Subscribe to specific event types"
+		},
+		{
+			"name": "🏥 Health & Info",
+			"item": [
+				{
+					"name": "Health Check",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/v1/health",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"health"
+							]
+						},
+						"description": "Check if the notifications service is healthy and running.\n\n**Response Format:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Service is running correctly\",\n  \"data\": {\n    \"status\": \"UP\",\n    \"timestamp\": \"2024-01-01T12:00:00\",\n    \"service\": \"DistriSchool Notifications Service\",\n    \"version\": \"1.0.0\"\n  }\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Service Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/v1/health/info",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"health",
+								"info"
+							]
+						},
+						"description": "Get detailed information about the notifications service.\n\n**Response Format:**\n```json\n{\n  \"success\": true,\n  \"message\": \"Service information\",\n  \"data\": {\n    \"name\": \"DistriSchool Notifications Service\",\n    \"description\": \"Service for consuming Kafka events and providing notifications to the frontend\",\n    \"version\": \"1.0.0\",\n    \"features\": [\n      \"Spring Boot 3.2.0\",\n      \"PostgreSQL with Flyway\",\n      \"Apache Kafka for event consumption\",\n      \"REST API for notifications\",\n      \"WebSocket support (via gateway)\"\n    ]\n  }\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Health Check (Direct Service)",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{notifications_service_url}}/api/v1/health",
+							"host": [
+								"{{notifications_service_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"health"
+							]
+						},
+						"description": "Check health directly on the notifications service (bypassing gateway)."
+					},
+					"response": []
+				}
+			],
+			"description": "Health check and service information endpoints"
+		},
+		{
+			"name": "📊 Examples & Testing",
+			"item": [
+				{
+					"name": "Example: Get All Notifications",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/v1/notifications",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications"
+							]
+						},
+						"description": "Example request to get all notifications"
+					},
+					"response": []
+				},
+				{
+					"name": "Example: Mark Notification 1 as Read",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{gateway_url}}/api/v1/notifications/1/read",
+							"host": [
+								"{{gateway_url}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"notifications",
+								"1",
+								"read"
+							]
+						},
+						"description": "Example: Mark notification with ID 1 as read"
+					},
+					"response": []
+				},
+				{
+					"name": "Test: Create Notification via Kafka",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"eventId\": \"test-event-123\",\n  \"eventType\": \"user.created\",\n  \"source\": \"auth-service\",\n  \"version\": \"1.0\",\n  \"timestamp\": \"2024-01-01T12:00:00\",\n  \"data\": {\n    \"userId\": 123,\n    \"userName\": \"Test User\",\n    \"userEmail\": \"test@example.com\",\n    \"userRole\": \"STUDENT\"\n  }\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{kafka_test_url}}/test/kafka/event",
+							"host": [
+								"{{kafka_test_url}}"
+							],
+							"path": [
+								"test",
+								"kafka",
+								"event"
+							]
+						},
+						"description": "**Note:** This is a test endpoint that would need to be implemented separately.\n\nTo test notifications:\n1. Send a Kafka event to the topics: `distrischool.auth.user.created`, `teacher-events`, or `distrischool.events`\n2. The notification service will consume the event and create a notification\n3. Use the \"Get All Notifications\" endpoint to see the new notification\n\n**Event Types Supported:**\n- `user.created` - Creates notification when a user is created\n- `user.disabled` - Creates notification when a user is disabled\n- `teacher.created` - Creates notification when a teacher is created"
+					},
+					"response": []
+				}
+			],
+			"description": "Example requests and testing endpoints"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-set Content-Type header if not present",
+					"if (!pm.request.headers.has('Content-Type')) {",
+					"    pm.request.headers.add({",
+					"        key: 'Content-Type',",
+					"        value: 'application/json'",
+					"    });",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Auto-extract notification ID from response",
+					"if (pm.response.code === 200) {",
+					"    try {",
+					"        const response = pm.response.json();",
+					"        if (response.data && Array.isArray(response.data) && response.data.length > 0) {",
+					"            pm.environment.set('notification_id', response.data[0].id);",
+					"        }",
+					"    } catch (e) {",
+					"        // Ignore if response is not JSON",
+					"    }",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "gateway_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "notifications_service_url",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "gateway_ws_url",
+			"value": "ws://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "notifications_service_ws_url",
+			"value": "ws://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "notification_id",
+			"value": "1",
+			"type": "string"
+		}
+	]
+}
+

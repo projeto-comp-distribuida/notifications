@@ -1,3 +1,61 @@
+# Java
+*.class
+hs_err_pid*
+replay_pid*
+
+# Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+buildNumber.properties
+.mvn/timing.properties
+.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# IDEs and editors
+.idea/
+*.iml
+*.ipr
+*.iws
+.project
+.classpath
+.settings/
+.vscode/
+*.code-workspace
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment/Secrets (local)
+.env
+*.env.local
+
+# Test/coverage
+coverage/
+/.scannerwork/
+/.sonar/
+jacoco.exec
+
+# Caches and temp
+.cache/
+.tmp/
+out/
+
+# Node/JS artifacts (if present)
+node_modules/
+dist/
+build/
+
 HELP.md
 target/
 !.mvn/wrapper/maven-wrapper.jar
