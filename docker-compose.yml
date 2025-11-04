@@ -20,7 +20,7 @@ services:
     environment:
       POSTGRES_DB: distrischool_template
       POSTGRES_USER: distrischool
-      POSTGRES_PASSWORD: distrischool123
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_INITDB_ARGS: "--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
     ports:
       - "5442:5432"
@@ -124,7 +124,7 @@ services:
       # Configurações do PostgreSQL
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/distrischool_auth
       SPRING_DATASOURCE_USERNAME: distrischool
-      SPRING_DATASOURCE_PASSWORD: distrischool123
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       # Configurações do Redis
       SPRING_REDIS_HOST: redis
@@ -135,12 +135,12 @@ services:
       SPRING_FLYWAY_LOCATIONS: classpath:db/migration
       SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
       # Configurações do Auth0
-      AUTH0_DOMAIN: ${AUTH0_DOMAIN:-dev-lthr3fyfn4x47q1g.us.auth0.com}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE:-https://api.distrischool.com}
-      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID:-a54bNT1rqBrjqBYEtA9tPfcl87Nd5rvF}
-      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET:-sqisN5KLFv3uDrVhtwhkhRgvodtXXbxusKffuTXjI8E_e9NV9zqEIv6MCRS9WUrs}
-      AUTH0_ENABLED: ${AUTH0_ENABLED:-true}
-      AUTH0_CONNECTION: ${AUTH0_CONNECTION:-Username-Password-Authentication}
+      AUTH0_DOMAIN: ${AUTH0_DOMAIN}
+      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
+      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
+      AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET}
+      AUTH0_ENABLED: ${AUTH0_ENABLED}
+      AUTH0_CONNECTION: ${AUTH0_CONNECTION}
     env_file:
       - .env
     networks:
@@ -181,7 +181,7 @@ services:
       # Configurações do PostgreSQL
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/distrischool_template
       SPRING_DATASOURCE_USERNAME: distrischool
-      SPRING_DATASOURCE_PASSWORD: distrischool123
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
       # Configurações do Redis
       SPRING_REDIS_HOST: redis
