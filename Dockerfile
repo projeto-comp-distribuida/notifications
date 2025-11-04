@@ -28,8 +28,14 @@ COPY ./docker-entrypoint.sh /docker-entrypoint.sh
 
 # Instala dependências necessárias
 # inotify-tools para monitorar mudanças nos arquivos
-# gcompat e libc6-compat para compatibilidade com bibliotecas glibc (necessário para Snappy)
-RUN apk add --no-cache inotify-tools gcompat libc6-compat
+# glibc e compat para suporte a bibliotecas nativas como Snappy
+RUN apk add --no-cache inotify-tools && \
+    apk add --no-cache --virtual .build-deps wget ca-certificates && \
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk && \
+    apk add --no-cache glibc-2.35-r1.apk && \
+    apk del .build-deps && \
+    rm -f glibc-2.35-r1.apk
 RUN chmod +x /docker-entrypoint.sh
 
 # Configurações para hot reload
@@ -47,6 +53,14 @@ FROM eclipse-temurin:17-jdk-alpine AS release
 
 LABEL maintainer="DistriSchool Team"
 WORKDIR /app
+
+# Instala glibc para suporte a bibliotecas nativas como Snappy
+RUN apk add --no-cache --virtual .build-deps wget ca-certificates && \
+    wget -q -O /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub && \
+    wget https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r1/glibc-2.35-r1.apk && \
+    apk add --no-cache glibc-2.35-r1.apk && \
+    apk del .build-deps && \
+    rm -f glibc-2.35-r1.apk
 
 # Copia o JAR construído
 COPY --from=build /app/target/microservice-template-1.0.0.jar /app/app.jar

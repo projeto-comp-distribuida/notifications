@@ -18,3 +18,5 @@ EOSQL
 echo "DistriSchool Auth Database initialized successfully!"
 
 
+
+

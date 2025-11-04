@@ -40,7 +40,7 @@ services:
     image: redis:7-alpine
     container_name: redis
     ports:
-      - "6379:6379"
+      - "6389:6379"
     volumes:
       - redis_data:/data
     networks:
@@ -81,6 +81,8 @@ services:
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: "true"
+      # Usar gzip ao invés de snappy para melhor compatibilidade com Alpine Linux
+      KAFKA_COMPRESSION_TYPE: gzip
     networks:
       - distrischool-network
     healthcheck:
@@ -116,17 +118,22 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8082:8080"
+      - "8080:8080"
     environment:
+      # Configurações básicas do container
       SERVER_PORT: 8080
       KAFKA_BOOTSTRAP_SERVERS: kafka:29092
       SPRING_PROFILES_ACTIVE: dev
-      # Configurações do PostgreSQL
+      SPRING_DEVTOOLS_RESTART_ENABLED: "true"
+      SPRING_DEVTOOLS_LIVERELOAD_ENABLED: "true"
+      SPRING_DEVTOOLS_RESTART_POLL_INTERVAL: "1000"
+      SPRING_DEVTOOLS_RESTART_QUIET_PERIOD: "400"
+      # Configurações do PostgreSQL (container interno)
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/distrischool_auth
       SPRING_DATASOURCE_USERNAME: distrischool
-      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_DATASOURCE_PASSWORD: distrischool123
       SPRING_DATASOURCE_DRIVER_CLASS_NAME: org.postgresql.Driver
-      # Configurações do Redis
+      # Configurações do Redis (container interno)
       SPRING_REDIS_HOST: redis
       SPRING_REDIS_PORT: 6379
       SPRING_REDIS_PASSWORD: ""
@@ -134,13 +141,28 @@ services:
       SPRING_FLYWAY_ENABLED: "true"
       SPRING_FLYWAY_LOCATIONS: classpath:db/migration
       SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
-      # Configurações do Auth0
+      SPRING_FLYWAY_IGNORE_MISSING_MIGRATIONS: "true"
+      SPRING_FLYWAY_VALIDATE_ON_MIGRATE: "true"
+      SPRING_FLYWAY_CLEAN_ON_VALIDATION_ERROR: "true"
+      SPRING_FLYWAY_OUT_OF_ORDER: "false"
+      # Configurações Auth0 (OAuth2) - Auth0 gerencia completamente os JWT tokens
+      AUTH0_ENABLED: ${AUTH0_ENABLED:-true}
       AUTH0_DOMAIN: ${AUTH0_DOMAIN}
-      AUTH0_AUDIENCE: ${AUTH0_AUDIENCE}
-      AUTH0_CLIENT_ID: ${AUTH0_CLIENT_ID}
+      AUTH0_CLIENT_ID: "a54bNT1rqBrjqBYEtA9tPfcl87Nd5rvF"
       AUTH0_CLIENT_SECRET: ${AUTH0_CLIENT_SECRET}
-      AUTH0_ENABLED: ${AUTH0_ENABLED}
-      AUTH0_CONNECTION: ${AUTH0_CONNECTION}
+      AUTH0_AUDIENCE: "https://api.distrischool.com"
+      AUTH0_CONNECTION: ${AUTH0_CONNECTION:-Username-Password-Authentication}
+      # Configurações JWT para tokens enriquecidos
+      JWT_SECRET: ${JWT_SECRET:-default-secret-key-change-in-production-minimum-256-bits}
+      JWT_EXPIRATION_HOURS: ${JWT_EXPIRATION_HOURS:-24}
+      # Configurações CORS - valores padrão, sobrescritos pelo .env
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173,http://localhost:8080}
+      # Configurações de Segurança - valores padrão, sobrescritos pelo .env
+      MAX_LOGIN_ATTEMPTS: ${MAX_LOGIN_ATTEMPTS:-5}
+      ACCOUNT_LOCK_DURATION: ${ACCOUNT_LOCK_DURATION:-30}
+      PASSWORD_RESET_TOKEN_EXPIRATION: ${PASSWORD_RESET_TOKEN_EXPIRATION:-2}
+      EMAIL_VERIFICATION_TOKEN_EXPIRATION: ${EMAIL_VERIFICATION_TOKEN_EXPIRATION:-24}
+
     env_file:
       - .env
     networks:
@@ -167,7 +189,7 @@ services:
       kafka:
         condition: service_healthy
     ports:
-      - "8080:8080"
+      - "8081:8080"
       - "5005:5005"   # Porta para debug remoto
       - "35729:35729" # Porta para LiveReload
     environment:

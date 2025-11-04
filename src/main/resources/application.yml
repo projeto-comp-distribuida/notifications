@@ -74,8 +74,8 @@ spring:
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
       retries: 3
-      # Desabilitar compressão no producer também
-      compression.type: none
+      # Usar gzip ao invés de snappy para melhor compatibilidade com Alpine Linux
+      compression.type: gzip
     
   # Configuração do Jackson
   jackson:

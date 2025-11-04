@@ -261,3 +261,5 @@ Notifications are automatically created when Kafka events are consumed. To test:
 - The service filters events and only creates notifications for supported event types
 
 
+
+

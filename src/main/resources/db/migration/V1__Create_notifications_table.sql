@@ -52,3 +52,5 @@ CREATE TRIGGER update_notifications_updated_at
 
 
 
+
+
