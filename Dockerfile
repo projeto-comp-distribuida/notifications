@@ -73,4 +73,6 @@ USER app
 
 EXPOSE 8080
 
-CMD ["java", "-jar", "app.jar"]
+# Use pure Java Snappy implementation to avoid native library compatibility issues
+# This prevents crashes when Kafka tries to decompress Snappy-compressed messages
+CMD ["java", "-Dorg.xerial.snappy.purejava=true", "-jar", "app.jar"]

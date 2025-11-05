@@ -18,7 +18,8 @@ ENV SPRING_DEVTOOLS_RESTART_QUIET_PERIOD=400
 EXPOSE 8080 5005 35729
 
 # Comando para desenvolvimento com hot reload
+# Use pure Java Snappy implementation to avoid native library compatibility issues
 ENTRYPOINT ["mvn", "spring-boot:run", \
-            "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005", \
+            "-Dspring-boot.run.jvmArguments=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 -Dorg.xerial.snappy.purejava=true", \
             "-Dspring-boot.run.fork=false"]
 
