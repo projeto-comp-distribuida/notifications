@@ -91,6 +91,20 @@
         <dependency>
             <groupId>org.springframework.kafka</groupId>
             <artifactId>spring-kafka</artifactId>
+            <exclusions>
+                <!-- Exclude native Snappy library to avoid compatibility issues -->
+                <exclusion>
+                    <groupId>org.xerial.snappy</groupId>
+                    <artifactId>snappy-java</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        
+        <!-- Use pure Java Snappy implementation -->
+        <dependency>
+            <groupId>org.xerial.snappy</groupId>
+            <artifactId>snappy-java</artifactId>
+            <version>1.1.10.5</version>
         </dependency>
         
         <!-- Spring Cloud OpenFeign para comunicação entre serviços -->
