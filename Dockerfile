@@ -47,35 +47,8 @@ RUN apk add --no-cache wget ca-certificates && \
 # Copy built JAR
 COPY --from=build /app/target/microservice-template-1.0.0.jar /app/app.jar
 
-# Remove native libraries (.so, .dylib, .dll) to force pure Java mode
-# Process nested JARs sequentially to reduce memory usage
-RUN apk add --no-cache zip unzip && \
-    TEMP_DIR=$(mktemp -d) && \
-    MAIN_TEMP=$(mktemp -d) && \
-    # Extract main JAR
-    unzip -q /app/app.jar -d "$MAIN_TEMP" && \
-    # Remove native libraries from main JAR contents
-    find "$MAIN_TEMP" -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" \) -delete 2>/dev/null || true && \
-    # Process nested JARs one at a time to minimize memory usage
-    if [ -d "$MAIN_TEMP/BOOT-INF/lib" ]; then \
-        for nested_jar in "$MAIN_TEMP"/BOOT-INF/lib/*.jar; do \
-            if [ -f "$nested_jar" ]; then \
-                NESTED_TEMP=$(mktemp -d) && \
-                unzip -q "$nested_jar" -d "$NESTED_TEMP" 2>/dev/null && \
-                find "$NESTED_TEMP" -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" \) -delete 2>/dev/null || true && \
-                cd "$NESTED_TEMP" && \
-                zip -q -r "$nested_jar.new" . && \
-                mv "$nested_jar.new" "$nested_jar" && \
-                rm -rf "$NESTED_TEMP"; \
-            fi; \
-        done; \
-    fi && \
-    # Repackage the main JAR
-    cd "$MAIN_TEMP" && \
-    zip -q -r /app/app.jar.new . && \
-    mv /app/app.jar.new /app/app.jar && \
-    rm -rf "$MAIN_TEMP" "$TEMP_DIR" && \
-    apk del zip unzip
+# Note: Native libraries (.so, .dylib, .dll) are already excluded at build time
+# by excluding Snappy dependency in pom.xml. No need to process the JAR.
 
 # Create non-root user
 RUN addgroup --system app && \
