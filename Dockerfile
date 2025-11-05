@@ -71,14 +71,12 @@ RUN chown -R app:app /app
 
 # Create wrapper script to ensure Snappy pure Java mode is set before JVM starts
 RUN echo '#!/bin/sh' > /app/run.sh && \
-    echo 'export JAVA_TOOL_OPTIONS="-Dorg.xerial.snappy.purejava=true ${JAVA_TOOL_OPTIONS}"' >> /app/run.sh && \
     echo 'exec java -Dorg.xerial.snappy.purejava=true -jar /app/app.jar "$@"' >> /app/run.sh && \
     chmod +x /app/run.sh && \
     chown app:app /app/run.sh
 
-# Set environment variable to force pure Java Snappy
+# Set environment variable to force pure Java Snappy (backup in case wrapper doesn't work)
 ENV JAVA_TOOL_OPTIONS="-Dorg.xerial.snappy.purejava=true"
-ENV ORG_XERIAL_SNAPPY_PUREJAVA=true
 
 USER app
 
