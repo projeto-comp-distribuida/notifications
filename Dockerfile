@@ -65,6 +65,34 @@ RUN apk add --no-cache --virtual .build-deps wget ca-certificates && \
 # Copia o JAR construído
 COPY --from=build /app/target/microservice-template-1.0.0.jar /app/app.jar
 
+# Remove native library files (.so) from nested JARs within Spring Boot JAR
+# Spring Boot stores dependency JARs as nested entries, we need to process them
+RUN apk add --no-cache zip unzip && \
+    TEMP_DIR=$(mktemp -d) && \
+    cd "$TEMP_DIR" && \
+    unzip -q /app/app.jar && \
+    # Remove .so files from the main JAR contents
+    find . -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" \) -delete 2>/dev/null || true && \
+    # Process nested JARs (BOOT-INF/lib/*.jar)
+    for nested_jar in BOOT-INF/lib/*.jar; do \
+        if [ -f "$nested_jar" ]; then \
+            NESTED_TEMP=$(mktemp -d) && \
+            cd "$NESTED_TEMP" && \
+            unzip -q "$TEMP_DIR/$nested_jar" 2>/dev/null && \
+            find . -type f \( -name "*.so" -o -name "*.dylib" -o -name "*.dll" \) -delete 2>/dev/null || true && \
+            zip -q -r "$TEMP_DIR/$nested_jar.new" . && \
+            mv "$TEMP_DIR/$nested_jar.new" "$TEMP_DIR/$nested_jar" && \
+            cd / && \
+            rm -rf "$NESTED_TEMP"; \
+        fi; \
+    done && \
+    # Repackage the main JAR
+    zip -q -r /app/app.jar.new . && \
+    mv /app/app.jar.new /app/app.jar && \
+    cd / && \
+    rm -rf "$TEMP_DIR" && \
+    apk del zip unzip
+
 # Cria usuário não-root para segurança
 RUN addgroup --system app && adduser -S -s /bin/false -G app app
 RUN chown -R app:app /app
