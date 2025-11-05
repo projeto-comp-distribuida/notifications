@@ -82,9 +82,6 @@ RUN addgroup --system app && \
     adduser -S -s /bin/false -G app app && \
     chown -R app:app /app
 
-# Force Snappy to use pure Java mode
-ENV JAVA_TOOL_OPTIONS="-Dorg.xerial.snappy.purejava=true"
-
 USER app
 EXPOSE 8080
 CMD ["java", "-jar", "/app/app.jar"]
