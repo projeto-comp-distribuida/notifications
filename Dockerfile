@@ -47,8 +47,10 @@ RUN apk add --no-cache wget ca-certificates && \
 # Copy built JAR
 COPY --from=build /app/target/microservice-template-1.0.0.jar /app/app.jar
 
-# Note: Native libraries (.so, .dylib, .dll) are already excluded at build time
-# by excluding Snappy dependency in pom.xml. No need to process the JAR.
+# Force Snappy to use pure Java mode (no native libraries)
+# Snappy is included for decompression only (to handle Snappy-compressed messages from Kafka)
+# We don't compress with Snappy, but we need it to decompress existing messages
+ENV JAVA_TOOL_OPTIONS="-Dorg.xerial.snappy.purejava=true"
 
 # Create non-root user
 RUN addgroup --system app && \
