@@ -1,4 +1,4 @@
-package com.distrischool.template.kafka;
+package com.distrischool.notifications.kafka;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -49,3 +49,4 @@ public class DistriSchoolEvent {
         return this;
     }
 }
+

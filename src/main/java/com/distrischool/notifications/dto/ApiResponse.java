@@ -1,4 +1,4 @@
-package com.distrischool.template.dto;
+package com.distrischool.notifications.dto;
 
 import java.time.LocalDateTime;
 
@@ -59,3 +59,4 @@ public class ApiResponse<T> {
         return new ApiResponse<>(false, message, data);
     }
 }
+

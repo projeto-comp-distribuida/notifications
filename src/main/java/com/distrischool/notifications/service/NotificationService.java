@@ -2,7 +2,7 @@ package com.distrischool.notifications.service;
 
 import com.distrischool.notifications.entity.Notification;
 import com.distrischool.notifications.repository.NotificationRepository;
-import com.distrischool.template.kafka.DistriSchoolEvent;
+import com.distrischool.notifications.kafka.DistriSchoolEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

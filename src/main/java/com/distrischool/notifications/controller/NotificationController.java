@@ -2,7 +2,7 @@ package com.distrischool.notifications.controller;
 
 import com.distrischool.notifications.dto.NotificationDTO;
 import com.distrischool.notifications.service.NotificationService;
-import com.distrischool.template.dto.ApiResponse;
+import com.distrischool.notifications.dto.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
